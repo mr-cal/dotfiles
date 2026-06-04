@@ -1,0 +1,78 @@
+set nocompatible " be iMproved, required
+filetype off     " required
+
+set history=10000
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+set rtp+=~/.fzf
+
+" vundle setup
+" :PluginList, :PluginInstall, :PluginUpdate, :PluginSearch foo, :PluginClean
+" call vundle#begin()
+" Plugin 'VundleVim/Vundle.vim'
+" Plugin 'vim-airline/vim-airline'
+" Plugin 'sainnhe/gruvbox-material'
+" Plugin 'octol/vim-cpp-enhanced-highlight'
+" Plugin 'junegunn/fzf'
+" Plugin 'junegunn/fzf.vim'
+" call vundle#end()
+
+filetype plugin indent on " required for vundle
+
+" show what changes have been made since last save
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
+endif
+
+" save when exiting insert mode
+autocmd InsertLeave * if &modifiable && &modified | silent! write | endif
+
+" mouse wheel scrolls as expected
+set mouse=a
+map <ScrollWheelUp> <C-Y>
+map <ScrollWheelDown> <C-E>
+
+" jk to escape
+inoremap jk <Esc>
+nnoremap ; :
+
+" color scheme
+" colorscheme gruvbox-material
+" let g:airline_them = 'gruvbox-material'
+
+" formatting
+syntax on
+set expandtab
+set noautoindent
+set tabstop=4
+set shiftwidth=4
+set display+=lastline
+set visualbell " disables the bell
+
+" syntax
+autocmd BufNewFile,BufRead *.exp set syntax=sh
+autocmd BufNewFile,BufRead *.log setfiletype=apexlog
+autocmd BufNewFile,BufRead *.cc set syntax=cpp.doxygen
+
+" show trailing spaces and tabs
+set list
+set listchars=tab:>-,trail:·
+
+" disable background color
+highlight Normal      ctermbg=NONE guibg=NONE
+highlight EndOfBuffer ctermbg=NONE guibg=NONE
+
+" highlighting in vimdiff
+highlight DiffAdd     cterm=bold ctermfg=15 ctermbg=22 gui=none guifg=bg guibg=Red
+highlight DiffDelete  cterm=bold ctermfg=15 ctermbg=52 gui=none guifg=bg guibg=Red
+highlight DiffChange  cterm=bold ctermfg=15 ctermbg=17 gui=none guifg=bg guibg=Red
+highlight DiffText    cterm=bold ctermfg=15 ctermbg=17 gui=none guifg=bg guibg=Red
+
+" search and replace highlighting
+highligh IncSearch    cterm=NONE ctermfg=7  ctermbg=91
+
+set clipboard+=unnamedplus
+
+" do not auto-indent comments in yaml files
+autocmd FileType yaml setlocal indentkeys-=0#

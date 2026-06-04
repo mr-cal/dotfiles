@@ -1,0 +1,37 @@
+#!/bin/sh
+
+CONFIG="$HOME/.config/chezmoi/chezmoi.toml"
+
+mkdir -p "$(dirname "$CONFIG")"
+touch "$CONFIG"
+
+if ! grep -q '^\[data\]' "$CONFIG"; then
+    echo '[data]' >> "$CONFIG"
+fi
+
+if ! grep -q '^[[:space:]]*email[[:space:]]*=' "$CONFIG"; then
+    echo '    email = "name@example.com"' >> "$CONFIG"
+fi
+
+if ! grep -q '^[[:space:]]*signing_key[[:space:]]*=' "$CONFIG"; then
+    echo '    signing_key = "ABC123"' >> "$CONFIG"
+fi
+
+if ! grep -q '^[[:space:]]*system_type[[:space:]]*=' "$CONFIG"; then
+    echo '    system_type = "ABC123(personal|canonical|server)"' >> "$CONFIG"
+fi
+
+if grep -q "ABC123" "$CONFIG"; then
+  echo "⚠️ ${CONFIG} is incomplete!"
+  echo "1. Update the system type."
+  echo "2. Create a gpg key and update ${CONFIG} with:"
+  echo "gpg --full-generate-key"
+  echo "gpg --list-secret-keys --keyid-format LONG"
+  echo "hx ${CONFIG}"
+else
+  system_type=$(grep '^[[:space:]]*system_type[[:space:]]*=' "$CONFIG" | sed 's/.*=[[:space:]]*"\(.*\)"/\1/')
+  case "$system_type" in
+    personal|canonical|server) ;;
+    *) echo "⚠️ Invalid system_type: '$system_type' (expected: personal, canonical, or server)" ;;
+  esac
+fi

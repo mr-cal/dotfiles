@@ -1,0 +1,144 @@
+#! /bin/bash
+set -euo pipefail
+
+log() { echo "==> $*"; }
+
+{{ if eq .chezmoi.osRelease.id "ubuntu" -}}
+
+#######
+# apt #
+#######
+
+if ! compgen -G "/etc/apt/sources.list.d/fish*" > /dev/null; then
+  sudo add-apt-repository -y ppa:fish-shell/release-4
+fi
+
+if [[ ! -f /etc/apt/sources.list.d/github-cli.list ]]; then
+  log "Setting up GitHub CLI PPA..."
+  sudo mkdir -p -m 755 /etc/apt/keyrings
+  wget -nv -O- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+  sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+fi
+
+log "Updating apt..."
+sudo apt-get update
+
+log "Installing apt packages..."
+sudo apt-get install -y \
+build-essential \
+curl \
+ddcutil \
+delta \
+direnv \
+fish \
+fprintd \
+gh \
+git \
+gitk \
+libpam-fprintd \
+npm \
+snapd \
+ripgrep \
+tree \
+wget \
+vim
+
+
+#########
+# snaps #
+#########
+
+snap_install() {
+    snap list "$1" &>/dev/null || sudo snap install "$@"
+}
+
+log "Installing snaps..."
+snap_install bash-language-server --classic
+snap_install helix --edge --classic
+snap_install ruff
+snap_install shfmt
+snap_install shellcheck
+
+log "Installing yaml-language-server..."
+sudo npm install -g yaml-language-server
+
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+  log "Installing personal/canonical snaps..."
+  snap_install astral-uv --classic
+  snap_install go --classic
+  snap_install lxd
+  lxd init --auto 2>/dev/null || true
+  snap_install obsidian --classic
+  snap_install rustup --classic
+  rustup default stable
+  rustup component add rust-analyzer
+  log "Installing python-lsp-server..."
+  uv tool install python-lsp-server
+{{ end }}
+
+{{ if eq .system_type "canonical" }}
+log "Installing canonical snaps..."
+snap_install google-cloud-sdk
+snap_install pycharm-community --classic
+{{ end }}
+
+
+#########
+# tools #
+#########
+
+if command -v starship >/dev/null 2>&1; then
+  log "starship is already installed"
+else
+  log "Installing starship..."
+  wget -qO- https://starship.rs/install.sh | sh
+fi
+
+
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+if command -v kitty >/dev/null 2>&1; then
+  log "Kitty is already installed."
+else
+  log "Installing Kitty..."
+  curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+  echo "To integrate kitty in the desktop, see:"
+  echo "https://sw.kovidgoyal.net/kitty/binary/"
+fi
+# end if personal or canonical
+{{ end }}
+
+
+###############
+# virtual box #
+###############
+{{ if eq .system_type "personal" }}
+
+VBOX_SOURCE="/etc/apt/sources.list.d/virtualbox.sources"
+
+if [[ ! -f "$VBOX_SOURCE" ]]; then
+  sudo tee "$VBOX_SOURCE" > /dev/null <<'EOF'
+Types: deb
+URIs: https://download.virtualbox.org/virtualbox/debian
+Suites: {{- .chezmoi.osRelease.versionCodename }}
+Components: contrib
+Architectures: amd64
+Signed-By: /usr/share/keyrings/oracle-virtualbox-2016.gpg
+EOF
+  echo "Created $VBOX_SOURCE"
+  wget -O- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --yes --output /usr/share/keyrings/oracle-virtualbox-2016.gpg --dearmor
+  log "Installing VirtualBox..."
+  sudo apt-get update
+  sudo apt-get install -y virtualbox-7.2
+  echo "run:"
+  echo "sudo modprobe -r kvm_amd"
+  echo "echo 'blacklist kvm_amd' >> /etc/modprobe.d/blacklist.conf"
+  echo "(https://superuser.com/a/1874448)"
+else
+  log "$VBOX_SOURCE already exists."
+fi
+# end if personal
+{{ end -}}
+
+# end if ubuntu
+{{ end -}}

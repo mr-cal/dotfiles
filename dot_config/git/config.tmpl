@@ -1,0 +1,85 @@
+[alias]
+    a = add
+    br = branch
+    ch = checkout
+    checkpoint = "!git add -A && git commit --no-verify -m 'checkpoint' && git status"
+    cs = commit --signoff
+    cr = commit --reset-author --amend
+    crs = commit --reset-author --amend --signoff
+    cp = cherry-pick
+    d = diff
+    dh = diff HEAD~
+    dhs = diff HEAD~ --stat
+    f = fetch
+    fixup = "!git add -A && git commit --no-verify -m 'checkpoint' && git squash"
+    fps = "!git fetch; git pull; git status"
+    l = log --decorate
+    lo = log --oneline
+    mt = mergetool
+    pl = pull --recurse-submodules
+    ps = push
+    psf = push --force
+    rb = rebase
+    rbom = rebase --onto=origin/main
+    rh = reset --hard
+    rhom = reset --hard origin/main
+    s = status
+    sw = switch
+    squash = "!git reset --soft HEAD~1 && git commit --all --amend --no-edit --no-verify"
+[branch]
+    sort = -committerdate
+[column]
+    ui = auto
+[commit]
+    gpgsign = true
+    verbose = true
+[core]
+    editor = hx
+	excludesfile = ~/.config/git/.gitignore_global
+    fsmonitor = true
+    untrackedCache = true
+[credential]
+    helper = store
+[diff]
+    algorithm = histogram
+    colorMoved = plain
+    colorMovedWS = ignore-all-space
+    mnemonicPrefix = true
+    renames = true
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+[help]
+    autocorrect = prompt
+[init]
+    defaultBranch = main
+[log]
+    abbrevCommit = true
+[merge]
+    tool = vimdiff
+    conflictstyle = zdiff3
+[pull]
+    rebase = true
+[push]
+    default = simple
+    autoSetupRemote = true
+[rebase]
+    autoSquash = true
+    autoStash = true
+[rerere]
+    enabled = true
+    autoupdate = true
+[sendemail]
+    smtpuser = callahankovacs@gmail.com
+    smtpserver = smtp.googlemail.com
+    smtpencryption = tls
+    smtpserverport = 587
+[submodule]
+    recurse = true
+[tag]
+    sort = version:refname
+[user]
+    name = Callahan Kovacs
+    email = {{ .email }}
+    signingkey = {{ .signing_key }}

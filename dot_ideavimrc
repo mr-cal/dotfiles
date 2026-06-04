@@ -1,0 +1,11 @@
+inoremap jk <Esc>
+inoremap kj <Esc>
+inoremap jK <Esc>
+inoremap Jk <Esc>
+inoremap JK <Esc>
+nnoremap ; :
+nnoremap / /\c
+
+
+set timeoutlen=1000
+set clipboard+=unnamed

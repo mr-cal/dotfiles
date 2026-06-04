@@ -1,0 +1,33 @@
+[[language]]
+name = "python"
+language-servers = [ { name = "pylsp", except-features = [ "format" ] }, "ruff"]
+auto-format = true
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+
+[language-server.pylsp.config.pylsp.plugins]
+ruff.enabled = true
+autopep8.enabled = false
+flake8.enabled = false
+mccabe.enabled = false
+pycodestyle.enabled = false
+pyflakes.enabled = false
+pylint.enabled = false
+yapf.enabled = false
+
+[[language]]
+name = "yaml"
+auto-format = false
+language-servers = ["yaml-language-server"]
+
+[language-server.yaml-language-server.config.yaml]
+format = { enable = false }
+validation = true
+
+[[language]]
+name = "bash"
+auto-format = true
+language-servers = ["bash-language-server"]
+formatter = { command = 'shfmt', args = ["-i", "4"] }
