@@ -44,6 +44,16 @@ tree \
 wget \
 vim
 
+if ! grep -qxF "$(command -v fish)" /etc/shells; then
+  log "Adding fish to /etc/shells..."
+  command -v fish | sudo tee -a /etc/shells
+fi
+
+if [ "$SHELL" != "$(command -v fish)" ]; then
+  log "Setting fish as the default shell..."
+  chsh -s "$(command -v fish)"
+fi
+
 
 #########
 # snaps #
