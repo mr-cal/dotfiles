@@ -1,0 +1,10 @@
+# Don't manage sensitive files
+.ssh/id_*
+.ssh/known_hosts
+.gnupg/**
+.config/chezmoi/chezmoi.toml
+.config/canonical/source-store-creds.txt
+
+# Don't manage repo metadata
+.pre-commit-config.yaml
+.gitignore

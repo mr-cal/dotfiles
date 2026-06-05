@@ -1,0 +1,13 @@
+# Secrets and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*secret*
+*credential*
+.env
+.env.*
+
+# chezmoi state (managed outside this repo)
+chezmoistate.boltdb
