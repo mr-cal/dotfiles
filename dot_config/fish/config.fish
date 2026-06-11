@@ -80,6 +80,7 @@ abbr --add dotdot --regex '^\.\.+$' --function multicd
 
 fish_add_path $HOME/go/bin
 fish_add_path $HOME/.opencode/bin
+fish_add_path $HOME/.local/bin
 
 set -g fish_greeting
 
