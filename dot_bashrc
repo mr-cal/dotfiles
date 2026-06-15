@@ -130,3 +130,5 @@ alias sb='function _sb(){ sudo ddcutil setvcp 10 $1 --display 1; sudo ddcutil se
 
 # opencode
 export PATH=/home/cal/.opencode/bin:$PATH
+
+[ -f "/home/callahan.kovacs@canonical.com/.config/local-llm/env" ] && source "/home/callahan.kovacs@canonical.com/.config/local-llm/env"
