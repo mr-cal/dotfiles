@@ -13,6 +13,8 @@ if ! compgen -G "/etc/apt/sources.list.d/fish*" > /dev/null; then
   sudo add-apt-repository -y ppa:fish-shell/release-4
 fi
 
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+
 if [[ ! -f /etc/apt/sources.list.d/github-cli.list ]]; then
   log "Setting up GitHub CLI PPA..."
   sudo mkdir -p -m 755 /etc/apt/keyrings
@@ -21,39 +23,54 @@ if [[ ! -f /etc/apt/sources.list.d/github-cli.list ]]; then
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 fi
 
+{{ end }}
+
 log "Updating apt..."
 sudo apt-get update
 
+APT_PACKAGES=(
+  curl
+  fish
+  git
+  npm
+  snapd
+  ripgrep
+  tree
+  wget
+  vim
+)
+
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+
+APT_PACKAGES+=(
+  build-essential
+  ddcutil
+  direnv
+  fprintd
+  gh
+  gitk
+  libpam-fprintd
+)
+
+{{ end }}
+
 log "Installing apt packages..."
-sudo apt-get install -y \
-build-essential \
-curl \
-ddcutil \
-delta \
-direnv \
-fish \
-fprintd \
-gh \
-git \
-gitk \
-libpam-fprintd \
-npm \
-snapd \
-ripgrep \
-tree \
-wget \
-vim
+sudo apt-get install -y "${APT_PACKAGES[@]}"
 
 if ! grep -qxF "$(command -v fish)" /etc/shells; then
   log "Adding fish to /etc/shells..."
   command -v fish | sudo tee -a /etc/shells
 fi
 
+# server scripts don't play well with fish :(
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+
 if [ "$SHELL" != "$(command -v fish)" ]; then
   log "Setting fish as the default shell..."
   chsh -s "$(command -v fish)"
 fi
 
+{{ end }}
 
 #########
 # snaps #
@@ -64,8 +81,11 @@ snap_install() {
 }
 
 log "Installing snaps..."
-snap_install bash-language-server --classic
 snap_install helix --edge --classic
+
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+
+snap_install bash-language-server --classic
 snap_install ruff
 snap_install shfmt
 snap_install shellcheck
@@ -73,7 +93,6 @@ snap_install shellcheck
 log "Installing yaml-language-server..."
 sudo npm install -g yaml-language-server
 
-{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
   log "Installing personal/canonical snaps..."
   snap_install astral-uv --classic
   snap_install go --classic
@@ -98,6 +117,8 @@ snap_install pycharm-community --classic
 # tools #
 #########
 
+{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
+
 if command -v starship >/dev/null 2>&1; then
   log "starship is already installed"
 else
@@ -105,8 +126,6 @@ else
   wget -qO- https://starship.rs/install.sh | sh
 fi
 
-
-{{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
 if command -v kitty >/dev/null 2>&1; then
   log "Kitty is already installed."
 else
@@ -115,13 +134,14 @@ else
   echo "To integrate kitty in the desktop, see:"
   echo "https://sw.kovidgoyal.net/kitty/binary/"
 fi
-# end if personal or canonical
+
 {{ end }}
 
 
 ###############
 # virtual box #
 ###############
+
 {{ if eq .system_type "personal" }}
 
 VBOX_SOURCE="/etc/apt/sources.list.d/virtualbox.sources"
