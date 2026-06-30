@@ -15,12 +15,13 @@ fi
 
 {{ if (or (eq .system_type "personal") (eq .system_type "canonical")) }}
 
-if [[ ! -f /etc/apt/sources.list.d/github-cli.list ]]; then
+if [[ ! -f /etc/apt/sources.list.d/github-cli.sources ]]; then
   log "Setting up GitHub CLI PPA..."
   sudo mkdir -p -m 755 /etc/apt/keyrings
   wget -nv -O- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
   sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  printf "Types: deb\nURIs: https://cli.github.com/packages\nSuites: stable\nComponents: main\nArchitectures: $(dpkg --print-architecture)\nSigned-By: /etc/apt/keyrings/githubcli-archive-keyring.gpg\n" | sudo tee /etc/apt/sources.list.d/github-cli.sources > /dev/null
+  sudo rm -f /etc/apt/sources.list.d/github-cli.list
 fi
 
 {{ end }}
