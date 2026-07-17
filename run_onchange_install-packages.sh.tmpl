@@ -2,6 +2,7 @@
 set -euo pipefail
 
 log() { echo "==> $*"; }
+warn() { echo -e "\033[1;31m==> $*\033[0m" >&2; }
 
 {{ if eq .chezmoi.osRelease.id "ubuntu" -}}
 
@@ -68,7 +69,11 @@ fi
 
 if [ "$SHELL" != "$(command -v fish)" ]; then
   log "Setting fish as the default shell..."
-  chsh -s "$(command -v fish)"
+  if ! chsh -s "$(command -v fish)" 2>/dev/null; then
+    warn "could not set fish as the default shell automatically" \
+      "(account may be managed by a directory service such as SSSD/authd)." \
+      "Run 'chsh -s $(command -v fish)' manually to set it."
+  fi
 fi
 
 {{ end }}
@@ -127,10 +132,17 @@ else
   wget -qO- https://starship.rs/install.sh | sh
 fi
 
+log "Checking kitty version..."
+KITTY_LATEST=$(curl -fsSL https://api.github.com/repos/kovidgoyal/kitty/releases/latest \
+  | grep '"tag_name"' | cut -d '"' -f4 | tr -d 'v')
+KITTY_CURRENT=""
 if command -v kitty >/dev/null 2>&1; then
-  log "Kitty is already installed."
+  KITTY_CURRENT=$(kitty --version | awk '{print $2}')
+fi
+if [ "$KITTY_CURRENT" = "$KITTY_LATEST" ]; then
+  log "Kitty is already up to date ($KITTY_CURRENT)."
 else
-  log "Installing Kitty..."
+  log "Installing Kitty $KITTY_LATEST..."
   curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
   echo "To integrate kitty in the desktop, see:"
   echo "https://sw.kovidgoyal.net/kitty/binary/"
