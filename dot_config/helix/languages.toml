@@ -1,6 +1,6 @@
 [[language]]
 name = "python"
-language-servers = [ { name = "pylsp", except-features = [ "format" ] }, "ruff"]
+language-servers = [ { name = "pylsp", except-features = [ "format" ] }, "ruff", "harper-ls"]
 auto-format = true
 
 [language-server.ruff]
@@ -20,7 +20,7 @@ yapf.enabled = false
 [[language]]
 name = "yaml"
 auto-format = false
-language-servers = ["yaml-language-server"]
+language-servers = ["yaml-language-server", "harper-ls"]
 
 [language-server.yaml-language-server.config.yaml]
 format = { enable = false }
@@ -29,5 +29,17 @@ validation = true
 [[language]]
 name = "bash"
 auto-format = true
-language-servers = ["bash-language-server"]
+language-servers = ["bash-language-server", "harper-ls"]
 formatter = { command = 'shfmt', args = ["-i", "4"] }
+
+[[language]]
+name = "markdown"
+language-servers = ["default-servers", "harper-ls"]
+
+[[language]]
+name = "rst"
+language-servers = ["default-servers", "harper-ls"]
+
+[language-server.harper-ls]
+command = "harper-ls"
+args = ["--stdio"]

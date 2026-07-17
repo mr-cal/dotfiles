@@ -136,6 +136,18 @@ else
   echo "https://sw.kovidgoyal.net/kitty/binary/"
 fi
 
+log "Installing harper-ls..."
+HARPER_ASSET="harper-ls-x86_64-unknown-linux-gnu.tar.gz"
+HARPER_URL=$(curl -fsSL https://api.github.com/repos/Automattic/harper/releases/latest \
+  | grep "browser_download_url.*${HARPER_ASSET}" \
+  | cut -d '"' -f 4)
+HARPER_TMPDIR=$(mktemp -d)
+curl -fsSL "$HARPER_URL" -o "$HARPER_TMPDIR/harper-ls.tar.gz"
+tar -xzf "$HARPER_TMPDIR/harper-ls.tar.gz" -C "$HARPER_TMPDIR"
+mkdir -p "$HOME/.local/bin"
+install -m 755 "$HARPER_TMPDIR/harper-ls" "$HOME/.local/bin/harper-ls"
+rm -rf "$HARPER_TMPDIR"
+
 {{ end }}
 
 
