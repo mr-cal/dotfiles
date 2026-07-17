@@ -6,15 +6,22 @@ function llm
     end
     set c "craft-llm-$idx"
 
-    set env_args
+    set target_cwd $HOME
 
     if string match -q "$HOME/dev*" "$PWD"
         if lxc exec "$c" -- test -d "$PWD" 2>/dev/null
-            set env_args --env "CRAFT_CWD=$PWD"
+            set target_cwd $PWD
         end
     end
 
-    lxc exec --force-interactive $env_args "$c" -- su - "$USER"
+    # Write the target CWD into the container as the user so they can remove it.
+    # su -l (not lxc exec --user) runs PAM so all supplemental groups (lxd, etc) load.
+    # Plain su -l with no -c/-s starts the user's login shell (fish) directly,
+    # avoiding the TTY/setpgid issues that occur when wrapping with bash -c.
+    # Remove any stale file (e.g. left from a root-owned previous run) before writing.
+    lxc exec "$c" -- rm -f /tmp/llm-cwd
+    echo $target_cwd | lxc exec --user (id -u) "$c" -- tee /tmp/llm-cwd > /dev/null
+    lxc exec --force-interactive "$c" -- su -l (id -un)
 end
 
 function sb

@@ -23,6 +23,11 @@ abbr --add cdrce cd ~/dev/rocks/rockcraft-examples
 abbr --add cdcpa cd ~/dev/craft/craft-parts
 abbr --add cdcpae cd ~/dev/craft/craft-parts-examples
 
+abbr --add cdbld cd ~/dev/craft/bld
+
+abbr --add cdbc cd ~/dev/craft/bincraft
+
+abbr --add cdfs cd ~/dev/craft/fetch-service
 abbr --add cdcap cd ~/dev/craft/craft-application
 abbr --add cdcli cd ~/dev/craft/craft-cli
 abbr --add cdcg cd ~/dev/craft/craft-grammar
@@ -81,6 +86,7 @@ abbr --add dotdot --regex '^\.\.+$' --function multicd
 fish_add_path $HOME/go/bin
 fish_add_path $HOME/.opencode/bin
 fish_add_path $HOME/.local/bin
+fish_add_path $HOME/.cargo/bin
 
 set -g fish_greeting
 
@@ -91,3 +97,5 @@ set -x EDITOR hx
 direnv hook fish | source
 
 starship init fish | source
+set -gx VOLTA_HOME "$HOME/.volta"
+set -gx PATH "$VOLTA_HOME/bin" $PATH
