@@ -48,3 +48,29 @@ based on the system type.
 ```bash
 chezmoi apply
 ```
+
+## Maintaining these dotfiles
+
+### Making and pushing local changes
+
+Chezmoi's source directory is itself a git repo (this one). Edit files
+directly here, then commit and push as usual:
+
+```bash
+cd ~/.local/share/chezmoi
+git add -A
+git commit -m "..."
+git push
+```
+
+### Applying changes to your system
+
+After editing (or pulling) files in the chezmoi source directory, apply
+them to your actual home directory with:
+
+```bash
+chezmoi apply
+```
+
+`chezmoi apply -v` shows a diff of what will change, and `chezmoi diff`
+previews changes without applying them.
