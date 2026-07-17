@@ -133,4 +133,4 @@ export PATH=/home/cal/.opencode/bin:$PATH
 
 [ -f "/home/callahan.kovacs@canonical.com/.config/local-llm/env" ] && source "/home/callahan.kovacs@canonical.com/.config/local-llm/env"
 export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
+[[ -d "$VOLTA_HOME" ]] && export PATH="$VOLTA_HOME/bin:$PATH"
