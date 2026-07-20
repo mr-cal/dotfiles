@@ -51,6 +51,10 @@ L = "redo"
 # open permalink on github
 space.q = ":sh xdg-open https://github.com/$(git remote get-url origin | sed -E 's#(git@github.com:|https://github.com/)([^/]+/[^/.]+)(\\.git)?#\\2#')/blob/$(git rev-parse HEAD)/$(git ls-files --full-name \"%{buffer_name}\")#L%{cursor_line}"
 
+# stop/restart all language servers for the current file
+space.z = ":lsp-stop"
+space.Z = ":lsp-restart"
+
 [keys.select]
 # -------------------------
 # from @mattmc3 (https://github.com/helix-editor/helix/issues/5520#issuecomment-1386428351)
