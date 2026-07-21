@@ -34,11 +34,11 @@ formatter = { command = 'shfmt', args = ["-i", "4"] }
 
 [[language]]
 name = "markdown"
-language-servers = ["default-servers", "harper-ls"]
+language-servers = ["harper-ls"]
 
 [[language]]
 name = "rst"
-language-servers = ["default-servers", "harper-ls"]
+language-servers = ["harper-ls"]
 
 [language-server.harper-ls]
 command = "harper-ls"
