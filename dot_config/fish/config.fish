@@ -55,7 +55,7 @@ abbr --add la ls -a1hF
 abbr --add pyts "pytest --no-cov -vv --maxfail=1 --failed-first"
 abbr --add pytsv "pytest --no-cov -vv --maxfail=1 --failed-first -s -o log_cli=true --log-cli-level=DEBUG"
 
-abbr --add ga git add
+abbr --add gaa git add --all
 abbr --add gbr git branch
 abbr --add gch git checkout
 abbr --add gcp "git add -A && git commit --no-verify -m 'checkpoint' && git status"
