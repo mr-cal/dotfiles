@@ -1,83 +1,47 @@
+# Bash is the fallback shell; fish is the interactive shell.
+#
+# Shortcuts shared with fish live in .chezmoidata/shortcuts.yaml and are
+# rendered into ~/.config/bash/shortcuts.sh, which is sourced below.
+
+# If not running interactively, don't do anything.
 case $- in
-# If not running interactively, don't do anything
     *i*) ;;
-      *) return;;
+    *) return ;;
 esac
 
-# enable programmable completion features
-# (you don't need to enable this, if it's already enabled in /etc/bash.bashrc and /etc/profile sources /etc/bash.bashrc).
+# Enable programmable completion features. Not needed if this is already
+# enabled in /etc/bash.bashrc and /etc/profile sources /etc/bash.bashrc.
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+    fi
 fi
 
-# make less more friendly for non-text input files, see lesspipe(1)
+# Make less more friendly for non-text input files, see lesspipe(1).
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# check the window size after each command and, if necessary, update the values of LINES and COLUMNS.
+# Check the window size after each command and update LINES and COLUMNS.
 shopt -s checkwinsize
 
-# If set, the pattern "**" used in a pathname expansion context will match all files and zero or more directories and subdirectories.
+# Make "**" match files and zero or more directories and subdirectories.
 shopt -s globstar
 
-export TERM=xterm-256color
+# history
+shopt -s histappend
+HISTCONTROL=ignoredups:erasedups
+HISTSIZE=100000
+HISTFILESIZE=100000
+PROMPT_COMMAND='history -a'
 
-alias c="cd"
+export EDITOR=hx
+PS1="\[\e[92m\]\w>\[\e[m\] "
 
-alias ctmp='cd "$(mktemp -d)"'
-
-alias cdsc="clear; cd ~/dev/craft/snapcraft"
-alias cdscu="clear; cd ~/dev/craft/snapcraft-uv"
-alias cdsce="clear; cd ~/dev/snaps/snapcraft-examples"
-
-alias cdcpa="clear; cd ~/dev/craft/craft-parts"
-alias cdcpae="clear; cd ~/dev/craft/craft-parts-examples"
-
-alias cdcc="clear; cd ~/dev/craft/charmcraft"
-alias cdcce="clear; cd ~/dev/charms/charmcraft-examples"
-
-alias cdsoc="clear; cd ~/dev/craft/sourcecraft"
-alias cdsoce="clear; cd ~/dev/sources/sourcecraft-examples"
-
-alias cdkc="clear; cd ~/dev/craft/kerncraft"
-alias cdkce="clear; cd ~/dev/craft/kerncraft-examples"
-
-alias cdic="clear; cd ~/dev/craft/imagecraft"
-alias cdice="clear; cd ~/dev/craft/imagecraft-examples"
-
-alias cdrc="clear; cd ~/dev/craft/rockcraft"
-alias cdrce="clear; cd ~/dev/rocks/rockcraft-examples"
-
-alias cdcap="clear; cd ~/dev/craft/craft-application"
-alias cdcli="clear; cd ~/dev/craft/craft-cli"
-alias cdcgr="clear; cd ~/dev/craft/craft-grammar"
-alias cdcar="clear; cd ~/dev/craft/craft-archives"
-alias cdcpl="clear; cd ~/dev/craft/craft-platforms"
-alias cdcpr="clear; cd ~/dev/craft/craft-providers"
-alias cdcst="clear; cd ~/dev/craft/craft-store"
-alias cdsb="clear; cd ~/dev/craft/starbase"
-
-alias cl="clear"
-alias g="git"
-alias l='ls -1hF'
-alias la='ls -a1hF'
-alias ll='ls -lhF'
-alias lr='ls -1hR'
-alias lc='clear; ls -1hF'
-alias lxcs="lxc --project snapcraft"
-alias lxcc="lxc --project charmcraft"
-alias lxcr="lxc --project rockcraft"
-alias lxck="lxc --project kerncraft"
-alias pyt="clear; pytest --no-cov -vv"
-alias pyts="clear; pytest --no-cov -vv --maxfail=1 --failed-first"
-alias rg="rg --smart-case"
-alias rgp="clear; rg --smart-case --type=py"
-alias ss="source ~/dev/craft/snapcraft/.venv/bin/activate"
-alias sr="source ~/dev/craft/rockcraft/.venv/bin/activate"
-alias v="nvim"
+# path
+export PATH="$HOME/.local/bin:$HOME/go/bin:$HOME/.cargo/bin:$HOME/.opencode/bin:$PATH"
+export VOLTA_HOME="$HOME/.volta"
+[ -d "$VOLTA_HOME" ] && export PATH="$VOLTA_HOME/bin:$PATH"
 
 # color support
 if [ -x /usr/bin/dircolors ]; then
@@ -91,28 +55,62 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-export PS1="\[\e[92m\]\w>\[\e[m\] "
+##################################################
+# shortcuts shared with fish (generated, see above)
+##################################################
 
-export PATH="$HOME/.local/bin/:$HOME/go/bin:$PATH"
+[ -f "$HOME/.config/bash/shortcuts.sh" ] && . "$HOME/.config/bash/shortcuts.sh"
 
-shopt -s histappend
-HISTCONTROL=ignoredups:erasedups
-HISTSIZE=100000
-HISTFILESIZE=100000
-PROMPT_COMMAND='history -a'
+####################
+# bash-only extras #
+####################
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+alias c="cd"
+alias cl="clear"
+alias g="git"
+alias v="hx"
+alias ctmp='cd "$(mktemp -d)"'
 
-if command -v direnv &> /dev/null
-then
-    eval "$(direnv hook bash)"
-fi
+alias ss='source ~/dev/craft/snapcraft/.venv/bin/activate'
+alias sr='source ~/dev/craft/rockcraft/.venv/bin/activate'
 
-# BEGIN_KITTY_SHELL_INTEGRATION
-if test -n "$KITTY_INSTALLATION_DIR" -a -e "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"; then source "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"; fi
-# END_KITTY_SHELL_INTEGRATION
+# dotfiles, see ~/.local/share/chezmoi/README.md
+# These mirror the fish functions of the same name, minus the prompts.
+alias dotdiff='chezmoi diff'
+dotstatus() {
+    local src
+    src="$(chezmoi source-path)" || return 1
+    echo '── $HOME vs. source dir ───'
+    chezmoi status
+    echo '── source dir vs. last commit ───'
+    git -C "$src" status --short --branch
+}
+dotpull() {
+    local src branch
+    src="$(chezmoi source-path)" || return 1
+    branch="$(git -C "$src" rev-parse --abbrev-ref HEAD)" || return 1
+    git -C "$src" pull --rebase origin "$branch" && chezmoi diff && chezmoi apply -v
+}
+dotpush() {
+    local src branch
+    src="$(chezmoi source-path)" || return 1
+    branch="$(git -C "$src" rev-parse --abbrev-ref HEAD)" || return 1
+    chezmoi re-add -v &&
+        git -C "$src" add -A &&
+        git -C "$src" commit ${1:+-m "$1"} &&
+        git -C "$src" push --set-upstream origin "$branch"
+}
 
-# change colorschemes / theme
+# Set the brightness of both external monitors.
+sb() {
+    if [ "$#" -ne 1 ]; then
+        echo "Usage: sb <brightness>" >&2
+        return 1
+    fi
+    sudo ddcutil setvcp 10 "$1" --display 1 && sudo ddcutil setvcp 10 "$1" --display 2
+}
+
+# Switch between the light and dark colour schemes.
 alias good-evening='ln -sf ~/.config/kitty/gruvbox-material-dark-medium.conf ~/.config/kitty/current-theme.conf && \
     kitten themes --reload-in=all "Gruvbox Material Dark Medium" && \
     gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"'
@@ -120,17 +118,23 @@ alias good-morning='ln -sf ~/.config/kitty/gruvbox-material-light-medium.conf ~/
     kitten themes --reload-in=all "Gruvbox Material Light Medium" && \
     gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"'
 
-if [[ -e "$HOME/.config/config/canonical/source-store-creds.txt" ]]; then
-  CRAFT_SOURCE_STORE_AUTH_TOKEN="$(cat $HOME/.config/config/canonical/source-store-creds.txt | tr -d \\n)"
+################
+# integrations #
+################
+
+if [ -r "$HOME/.config/canonical/source-store-creds.txt" ]; then
+    CRAFT_SOURCE_STORE_AUTH_TOKEN="$(tr -d '\n' <"$HOME/.config/canonical/source-store-creds.txt")"
+    export CRAFT_SOURCE_STORE_AUTH_TOKEN
 fi
 
-# set brightness of external monitors
-alias sb='function _sb(){ sudo ddcutil setvcp 10 $1 --display 1; sudo ddcutil setvcp 10 $1 --display 2; }; _sb'
-[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+[ -f "$HOME/.config/local-llm/env" ] && . "$HOME/.config/local-llm/env"
+[ -f "$HOME/.fzf.bash" ] && . "$HOME/.fzf.bash"
 
-# opencode
-export PATH=/home/cal/.opencode/bin:$PATH
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook bash)"
+fi
 
-[ -f "$HOME/.config/local-llm/env" ] && source "$HOME/.config/local-llm/env"
-export VOLTA_HOME="$HOME/.volta"
-[[ -d "$VOLTA_HOME" ]] && export PATH="$VOLTA_HOME/bin:$PATH"
+# BEGIN_KITTY_SHELL_INTEGRATION
+if test -n "$KITTY_INSTALLATION_DIR" -a -e "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"; then source "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"; fi
+# END_KITTY_SHELL_INTEGRATION

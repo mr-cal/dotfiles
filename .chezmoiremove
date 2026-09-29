@@ -1,0 +1,16 @@
+# Files chezmoi actively deletes from $HOME on apply.
+#
+# Unmanaging a file only makes chezmoi ignore it; the stale copy stays in
+# $HOME until it is listed here. Entries can be pruned once every machine has
+# applied them.
+
+# Replaced by conf.d/shortcuts.fish and the per-function files in functions/.
+.config/fish/conf.d/functions.fish
+
+# Dead code: starship defines fish_prompt at shell startup, so this never ran.
+.config/fish/functions/fish_prompt.fish
+
+# Note: entries listed in .chezmoiignore cannot be removed from here, because
+# chezmoi ignores them entirely. ~/README.md was installed by an earlier
+# version of this repo and has to be deleted by hand, once, per machine:
+#     rm ~/README.md

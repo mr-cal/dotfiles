@@ -1,0 +1,166 @@
+# Single source of truth for shell shortcuts.
+#
+# `dot_bashrc.tmpl` renders these as aliases and
+# `dot_config/fish/conf.d/shortcuts.fish.tmpl` renders them as abbreviations,
+# so bash and fish cannot drift apart. Add a shortcut here, not in either
+# shell's config.
+#
+# Shortcuts whose syntax differs between the shells (for example fish's
+# `(cmd)` versus bash's `$(cmd)` command substitution) stay hand-written in
+# each shell's own config.
+
+shortcuts:
+  # Directories, relative to $HOME.
+  directories:
+    - name: cdsc
+      path: dev/craft/snapcraft
+    - name: cdsca
+      path: dev/craft/snapcraft/snapcraft-a
+    - name: cdscb
+      path: dev/craft/snapcraft/snapcraft-b
+    - name: cdsce
+      path: dev/snaps/snapcraft-examples
+
+    - name: cdcc
+      path: dev/craft/charmcraft
+    - name: cdcce
+      path: dev/charms/charmcraft-examples
+
+    - name: cdrc
+      path: dev/craft/rockcraft
+    - name: cdrce
+      path: dev/rocks/rockcraft-examples
+
+    - name: cdsoc
+      path: dev/craft/sourcecraft
+    - name: cdsoce
+      path: dev/sources/sourcecraft-examples
+
+    - name: cdkc
+      path: dev/craft/kerncraft
+    - name: cdkce
+      path: dev/craft/kerncraft-examples
+
+    - name: cdic
+      path: dev/craft/imagecraft
+    - name: cdice
+      path: dev/craft/imagecraft-examples
+
+    - name: cdcpa
+      path: dev/craft/craft-parts
+    - name: cdcpae
+      path: dev/craft/craft-parts-examples
+
+    - name: cdcpr
+      path: dev/craft/craft-providers
+    - name: cdcpre
+      path: dev/craft/craft-providers-examples
+
+    - name: cdcap
+      path: dev/craft/craft-application
+    - name: cdcar
+      path: dev/craft/craft-archives
+    - name: cdcli
+      path: dev/craft/craft-cli
+    - name: cdcg
+      path: dev/craft/craft-grammar
+    - name: cdcpl
+      path: dev/craft/craft-platforms
+    - name: cdcst
+      path: dev/craft/craft-store
+
+    - name: cdbc
+      path: dev/craft/bincraft
+    - name: cdbld
+      path: dev/craft/bld
+    - name: cdfs
+      path: dev/craft/fetch-service
+    - name: cdsb
+      path: dev/craft/starbase
+    - name: cdsf
+      path: dev/craft/starflow
+    - name: cdss
+      path: dev/craft/starshow
+
+    - name: cddot
+      path: .local/share/chezmoi
+
+  # Commands whose syntax is identical in bash and fish.
+  commands:
+    - name: lxcsc
+      command: lxc --project snapcraft
+    - name: lxccc
+      command: lxc --project charmcraft
+    - name: lxcrc
+      command: lxc --project rockcraft
+    - name: lxckc
+      command: lxc --project kerncraft
+    - name: lxcsoc
+      command: lxc --project sourcecraft
+
+    - name: l
+      command: ls -1hF
+    - name: la
+      command: ls -a1hF
+    - name: ll
+      command: ls -lhF
+    - name: lr
+      command: ls -1hR
+
+    - name: rg
+      command: rg --smart-case --sort=path
+    - name: rgp
+      command: rg --smart-case --sort=path --type=py
+
+    - name: pyt
+      command: pytest --no-cov -vv
+    - name: pyts
+      command: pytest --no-cov -vv --maxfail=1 --failed-first
+    - name: pytsv
+      command: pytest --no-cov -vv --maxfail=1 --failed-first -s -o log_cli=true --log-cli-level=DEBUG
+
+    - name: gaa
+      command: git add --all
+    - name: gbr
+      command: git branch
+    - name: gch
+      command: git checkout
+    - name: gcs
+      command: git commit --signoff -m
+    - name: gcrs
+      command: git commit --reset-author --amend --signoff
+    - name: gd
+      command: git diff
+    - name: gdh
+      command: git diff HEAD~
+    - name: gf
+      command: git fetch
+    - name: glo
+      command: git log --oneline
+    - name: gmt
+      command: git mergetool
+    - name: grb
+      command: git rebase
+    - name: grbom
+      command: git rebase --onto origin/main
+    - name: grh
+      command: git reset --hard
+    - name: grhom
+      command: git reset --hard origin/main
+    - name: gs
+      command: git status
+    - name: gsw
+      command: git switch
+    - name: gwt
+      command: git worktree
+
+    # These map onto the git aliases defined in dot_config/git/config.tmpl, so
+    # the behaviour stays identical however they are invoked.
+    - name: gcp
+      command: git checkpoint
+    - name: gfps
+      command: git fps
+    - name: gsquash
+      command: git squash
+    - name: gfixup
+      command: git fixup

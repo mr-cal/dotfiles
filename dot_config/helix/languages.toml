@@ -46,3 +46,8 @@ args = ["--stdio"]
 
 [language-server.harper-ls.config.harper-ls.linters]
 UseTitleCase = false
+OrthographicConsistency = false
+# https://docs.rs/harper-core/latest/src/harper_core/linting/phrase_set_corrections/mod.rs.html
+ExpandArgument = false
+ExpandDirectory = false
+ExpandParameter = false

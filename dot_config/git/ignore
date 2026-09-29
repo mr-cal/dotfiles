@@ -1,0 +1,18 @@
+# Global git ignore, referenced by core.excludesfile.
+#
+# Only for things that are never wanted in any repository. Project-specific
+# patterns belong in the project's own .gitignore.
+
+# editor and tool state
+.direnv/
+.helix/
+.idea/
+.vscode/
+*.swp
+
+# operating system
+.DS_Store
+
+# local scratch space
+.venv/
+__pycache__/

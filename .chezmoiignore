@@ -1,10 +1,18 @@
-# Don't manage sensitive files
+# Repository metadata: lives in the source dir, never in $HOME.
+README.md
+.gitignore
+.pre-commit-config.yaml
+
+# Secrets and machine-local state: never manage these.
+.config/canonical/source-store-creds.txt
+.config/chezmoi/chezmoi.toml
+.config/fish/vars.fish
+.config/local-llm/**
+.gnupg/**
 .ssh/id_*
 .ssh/known_hosts
-.gnupg/**
-.config/chezmoi/chezmoi.toml
-.config/canonical/source-store-creds.txt
 
-# Don't manage repo metadata
-.pre-commit-config.yaml
-.gitignore
+# Desktop-only configuration.
+{{- if eq .system_type "server" }}
+.config/kitty/**
+{{- end }}

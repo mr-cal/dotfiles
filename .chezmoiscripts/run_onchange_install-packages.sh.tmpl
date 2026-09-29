@@ -1,0 +1,235 @@
+#!/bin/bash
+set -euo pipefail
+
+log() { echo "==> $*"; }
+warn() { printf '\033[1;31m==> %s\033[0m\n' "$*" >&2; }
+
+# Non-fatal wrapper: a failing optional install should not abort the whole
+# apply, because chezmoi records the script as run either way.
+try() {
+    if ! "$@"; then
+        warn "failed (continuing): $*"
+    fi
+    return 0
+}
+
+{{ if eq .chezmoi.osRelease.id "ubuntu" -}}
+{{-  $desktop := or (eq .system_type "personal") (eq .system_type "canonical") }}
+
+#######
+# apt #
+#######
+
+if ! compgen -G "/etc/apt/sources.list.d/fish*" >/dev/null; then
+    log "Setting up the fish PPA..."
+    sudo add-apt-repository -y ppa:fish-shell/release-4
+fi
+
+{{ if $desktop }}
+if [[ ! -f /etc/apt/sources.list.d/github-cli.sources ]]; then
+    log "Setting up the GitHub CLI repository..."
+    sudo install -d -m 755 /etc/apt/keyrings
+    wget -nv -O- https://cli.github.com/packages/githubcli-archive-keyring.gpg |
+        sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    sudo tee /etc/apt/sources.list.d/github-cli.sources >/dev/null <<EOF
+Types: deb
+URIs: https://cli.github.com/packages
+Suites: stable
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+EOF
+    sudo rm -f /etc/apt/sources.list.d/github-cli.list
+fi
+{{ end }}
+
+log "Updating apt..."
+sudo apt-get update
+
+APT_PACKAGES=(
+    curl
+    fish
+    git
+    npm
+    ripgrep
+    snapd
+    tree
+    vim
+    wget
+)
+
+{{ if $desktop }}
+APT_PACKAGES+=(
+    build-essential
+    ddcutil
+    direnv
+    fprintd
+    gh
+    gitk
+    libpam-fprintd
+)
+{{ end }}
+
+log "Installing apt packages..."
+sudo apt-get install -y "${APT_PACKAGES[@]}"
+
+FISH_PATH="$(command -v fish)"
+if ! grep -qxF "$FISH_PATH" /etc/shells; then
+    log "Adding fish to /etc/shells..."
+    echo "$FISH_PATH" | sudo tee -a /etc/shells >/dev/null
+fi
+
+{{ if $desktop }}
+# Server login scripts don't play well with fish, so only switch on desktops.
+# $SHELL reflects the shell that started this script, so read the passwd entry.
+if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$FISH_PATH" ]]; then
+    log "Setting fish as the default shell..."
+    if ! chsh -s "$FISH_PATH" 2>/dev/null; then
+        warn "could not set fish as the default shell automatically (the account may be managed by a directory service such as SSSD/authd). Run 'chsh -s $FISH_PATH' manually."
+    fi
+fi
+{{ end }}
+
+#########
+# snaps #
+#########
+
+snap_install() {
+    local name=$1
+    if snap list "$name" >/dev/null 2>&1; then
+        log "snap '$name' is already installed"
+    else
+        log "Installing snap '$name'..."
+        sudo snap install "$@"
+    fi
+}
+
+snap_install helix --edge --classic
+
+{{ if $desktop }}
+snap_install astral-uv --classic
+snap_install bash-language-server --classic
+snap_install go --classic
+snap_install lxd
+snap_install obsidian --classic
+snap_install ruff
+snap_install rustup --classic
+snap_install shellcheck
+snap_install shfmt
+
+# Initializing an already-initialized LXD is an error, so ignore failures.
+try sudo lxd init --minimal
+
+log "Configuring the rust toolchain..."
+try rustup default stable
+try rustup component add rust-analyzer
+
+log "Installing yaml-language-server..."
+try sudo npm install -g yaml-language-server
+
+log "Installing python-lsp-server..."
+try uv tool install --force python-lsp-server
+{{ end }}
+
+{{ if eq .system_type "canonical" }}
+snap_install google-cloud-sdk
+snap_install pycharm-community --classic
+{{ end }}
+
+{{ if $desktop }}
+#########
+# tools #
+#########
+
+# Resolve the latest release tag for a GitHub repo. Unauthenticated API calls
+# are rate limited to 60/hour, so callers must tolerate an empty result.
+github_latest_tag() {
+    curl -fsSL "https://api.github.com/repos/$1/releases/latest" 2>/dev/null |
+        grep -m1 '"tag_name"' | cut -d '"' -f4 || true
+}
+
+if command -v starship >/dev/null 2>&1; then
+    log "starship is already installed"
+else
+    log "Installing starship..."
+    try sh -c 'wget -qO- https://starship.rs/install.sh | sh -s -- --yes'
+fi
+
+log "Checking the kitty version..."
+KITTY_LATEST="$(github_latest_tag kovidgoyal/kitty | tr -d v)"
+KITTY_CURRENT=""
+if command -v kitty >/dev/null 2>&1; then
+    KITTY_CURRENT="$(kitty --version | awk '{print $2}')"
+fi
+if [[ -z "$KITTY_LATEST" ]]; then
+    warn "could not determine the latest kitty version; skipping"
+elif [[ "$KITTY_CURRENT" == "$KITTY_LATEST" ]]; then
+    log "kitty is already up to date ($KITTY_CURRENT)"
+else
+    log "Installing kitty $KITTY_LATEST..."
+    try sh -c 'curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin'
+    log "To add kitty to the desktop, see https://sw.kovidgoyal.net/kitty/binary/"
+fi
+
+log "Checking the harper-ls version..."
+HARPER_LATEST="$(github_latest_tag Automattic/harper)"
+HARPER_CURRENT=""
+if command -v harper-ls >/dev/null 2>&1; then
+    HARPER_CURRENT="v$(harper-ls --version 2>/dev/null | awk '{print $NF}')"
+fi
+if [[ -z "$HARPER_LATEST" ]]; then
+    warn "could not determine the latest harper-ls version; skipping"
+elif [[ "$HARPER_CURRENT" == "$HARPER_LATEST" ]]; then
+    log "harper-ls is already up to date ($HARPER_CURRENT)"
+else
+    log "Installing harper-ls $HARPER_LATEST..."
+    HARPER_ASSET="harper-ls-$(uname -m)-unknown-linux-gnu.tar.gz"
+    HARPER_URL="https://github.com/Automattic/harper/releases/download/$HARPER_LATEST/$HARPER_ASSET"
+    HARPER_TMPDIR="$(mktemp -d)"
+    if curl -fsSL "$HARPER_URL" -o "$HARPER_TMPDIR/harper-ls.tar.gz" &&
+        tar -xzf "$HARPER_TMPDIR/harper-ls.tar.gz" -C "$HARPER_TMPDIR"; then
+        install -D -m 755 "$HARPER_TMPDIR/harper-ls" "$HOME/.local/bin/harper-ls"
+    else
+        warn "could not install harper-ls from $HARPER_URL"
+    fi
+    rm -rf "$HARPER_TMPDIR"
+fi
+{{ end }}
+
+{{ if eq .system_type "personal" }}
+###############
+# virtual box #
+###############
+
+VBOX_SOURCE="/etc/apt/sources.list.d/virtualbox.sources"
+
+if [[ -f "$VBOX_SOURCE" ]]; then
+    log "$VBOX_SOURCE already exists"
+else
+    log "Setting up the VirtualBox repository..."
+    wget -nv -O- https://www.virtualbox.org/download/oracle_vbox_2016.asc |
+        sudo gpg --yes --output /usr/share/keyrings/oracle-virtualbox-2016.gpg --dearmor
+    sudo tee "$VBOX_SOURCE" >/dev/null <<EOF
+Types: deb
+URIs: https://download.virtualbox.org/virtualbox/debian
+Suites: {{ .chezmoi.osRelease.versionCodename }}
+Components: contrib
+Architectures: amd64
+Signed-By: /usr/share/keyrings/oracle-virtualbox-2016.gpg
+EOF
+    sudo apt-get update
+    sudo apt-get install -y virtualbox-7.2
+    cat <<'EOF'
+VirtualBox and KVM cannot both hold the CPU virtualization extensions.
+To give VirtualBox priority, run (see https://superuser.com/a/1874448):
+
+    sudo modprobe -r kvm_amd
+    echo 'blacklist kvm_amd' | sudo tee -a /etc/modprobe.d/blacklist.conf
+EOF
+fi
+{{ end }}
+
+{{ else -}}
+warn "Unsupported distribution '{{ .chezmoi.osRelease.id }}'; skipping package installation."
+{{ end -}}

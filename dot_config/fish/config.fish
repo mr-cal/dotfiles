@@ -1,103 +1,57 @@
-fish_vi_key_bindings
+# fish is the interactive shell.
+#
+# Shortcuts shared with bash live in .chezmoidata/shortcuts.yaml and are
+# rendered into conf.d/shortcuts.fish. Functions live in functions/.
 
-abbr --add cdsc cd ~/dev/craft/snapcraft/snapcraft-main
-abbr --add cdsca cd ~/dev/craft/snapcraft/snapcraft-a
-abbr --add cdscb cd ~/dev/craft/snapcraft/snapcraft-b
-abbr --add cdsce cd ~/dev/snaps/snapcraft-examples
+# path
+fish_add_path --path $HOME/.local/bin
+fish_add_path --path $HOME/go/bin
+fish_add_path --path $HOME/.cargo/bin
+fish_add_path --path $HOME/.opencode/bin
 
-abbr --add cdcc cd ~/dev/craft/charmcraft
-abbr --add cdcce cd ~/dev/craft/charmcraft-examples
+set -gx VOLTA_HOME "$HOME/.volta"
+if test -d "$VOLTA_HOME"
+    fish_add_path --path $VOLTA_HOME/bin
+end
 
-abbr --add cdsoc cd ~/dev/craft/sourcecraft
-abbr --add cdsoce cd ~/dev/sources/sourcecraft-examples
+# environment
+set -gx EDITOR hx
+set -gx COPILOT_CUSTOM_INSTRUCTIONS_DIRS $HOME
 
-abbr --add cdkc cd ~/dev/craft/kerncraft
-abbr --add cdkce cd ~/dev/craft/kerncraft-examples
+if test -r ~/.config/canonical/source-store-creds.txt
+    set -gx CRAFT_SOURCE_STORE_AUTH_TOKEN (string trim < ~/.config/canonical/source-store-creds.txt)
+end
 
-abbr --add cdic cd ~/dev/craft/imagecraft
-abbr --add cdice cd ~/dev/craft/imagecraft-examples
-
-abbr --add cdrc cd ~/dev/craft/rockcraft
-abbr --add cdrce cd ~/dev/rocks/rockcraft-examples
-
-abbr --add cdcpa cd ~/dev/craft/craft-parts
-abbr --add cdcpae cd ~/dev/craft/craft-parts-examples
-
-abbr --add cdbld cd ~/dev/craft/bld
-
-abbr --add cdbc cd ~/dev/craft/bincraft
-
-abbr --add cdfs cd ~/dev/craft/fetch-service
-abbr --add cdcap cd ~/dev/craft/craft-application
-abbr --add cdcli cd ~/dev/craft/craft-cli
-abbr --add cdcg cd ~/dev/craft/craft-grammar
-abbr --add cdcar cd ~/dev/craft/craft-archives
-abbr --add cdcpl cd ~/dev/craft/craft-platforms
-abbr --add cdcpr cd ~/dev/craft/craft-providers
-abbr --add cdcst cd ~/dev/craft/craft-store
-abbr --add cdsb cd ~/dev/craft/starbase
-abbr --add cdsf cd ~/dev/craft/starflow
-abbr --add cdss cd ~/dev/craft/starshow
-
-abbr --add lxcsc lxc --project snapcraft
-abbr --add lxccc lxc --project charmcraft
-abbr --add lxcrc lxc --project rockcraft
-abbr --add lxcsoc lxc --project sourcecraft
-
-abbr --add ctmp 'cd (mktemp -d)'
-
-abbr --add rg rg --smart-case --sort=path
-abbr --add rgp rg --smart-case --sort=path --type=py
-
-abbr --add l ls -1hF
-abbr --add la ls -a1hF
-
-abbr --add pyts "pytest --no-cov -vv --maxfail=1 --failed-first"
-abbr --add pytsv "pytest --no-cov -vv --maxfail=1 --failed-first -s -o log_cli=true --log-cli-level=DEBUG"
-
-abbr --add gaa git add --all
-abbr --add gbr git branch
-abbr --add gch git checkout
-abbr --add gcp "git add -A && git commit --no-verify -m 'checkpoint' && git status"
-abbr --add gcs git commit --signoff -m
-abbr --add gcrs git commit --reset-author --amend --signoff
-abbr --add gd git diff
-abbr --add gdh git diff HEAD~
-abbr --add gf git fetch
-abbr --add gfps "git fetch && git pull; git status"
-abbr --add glo git log --oneline
-abbr --add gmt git mergetool
-abbr --add grb git rebase
-abbr --add grbom git rebase --onto origin/main
-abbr --add grh git reset --hard
-abbr --add grhom git reset --hard origin/main
-abbr --add gs git status
-abbr --add gsw git switch
-abbr --add gwt git worktree
-abbr --add gsquash "git reset --soft HEAD~1 && git commit --all --amend --no-edit --no-verify"
-abbr --add gfixup 'git add -A && git commit --no-verify -m "checkpoint" && git reset --soft HEAD~1 && git commit --all --amend --no-edit --no-verify'
-
+# Machine-local overrides, not managed by chezmoi.
 if test -f ~/.config/fish/vars.fish
     source ~/.config/fish/vars.fish
 end
 
-abbr --add dotdot --regex '^\.\.+$' --function multicd
+status is-interactive; or return
 
-fish_add_path $HOME/go/bin
-fish_add_path $HOME/.opencode/bin
-fish_add_path $HOME/.local/bin
-fish_add_path $HOME/.cargo/bin
-
+fish_vi_key_bindings
 set -g fish_greeting
 
-set -x COPILOT_CUSTOM_INSTRUCTIONS_DIRS $HOME
+# fish-only shortcuts; the shared ones are in conf.d/shortcuts.fish.
+abbr --add ctmp 'cd (mktemp -d)'
+abbr --add c cd
+abbr --add cl clear
+abbr --add g git
+abbr --add v hx
 
-set -x EDITOR hx
+# `..`, `...`, `....` walk up that many directories.
+abbr --add dotdot --regex '^\.\.+$' --function multicd
 
-direnv hook fish | source
+# These are defined as functions rather than abbreviations because they run a
+# multi-step workflow; see ~/.local/share/chezmoi/README.md.
+abbr --add dots dotstatus
+abbr --add dotd dotdiff
 
-starship init fish | source
-set -gx VOLTA_HOME "$HOME/.volta"
-if test -d "$VOLTA_HOME"
-    set -gx PATH "$VOLTA_HOME/bin" $PATH
+# The install script only provides these on personal and canonical systems.
+if command -q direnv
+    direnv hook fish | source
+end
+
+if command -q starship
+    starship init fish | source
 end

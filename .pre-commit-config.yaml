@@ -3,3 +3,25 @@ repos:
     rev: v8.24.3
     hooks:
       - id: gitleaks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      # chezmoi templates are not valid shell/YAML until rendered, so lint the
+      # rendered output instead of the source.
+      - id: chezmoi-verify
+        name: chezmoi verify templates
+        entry: chezmoi execute-template --file
+        language: system
+        pass_filenames: true
+        files: '\.tmpl$'
+        # The config template uses prompt functions that only exist during
+        # `chezmoi init`, so it cannot be rendered standalone.
+        exclude: '^\.chezmoi\.toml\.tmpl$'

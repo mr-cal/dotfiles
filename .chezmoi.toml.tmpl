@@ -1,3 +1,12 @@
-[git]
-    autoCommit = true
-    autoPush = true
+{{- /* Prompts run only on `chezmoi init`. Answers are written into
+       ~/.config/chezmoi/chezmoi.toml and reused on every later init. */ -}}
+{{- $systemType := promptChoiceOnce . "system_type" "System type" (list "personal" "canonical" "server") -}}
+{{- $email := promptStringOnce . "email" "Git email address" -}}
+{{- $signingKey := promptStringOnce . "signing_key" "GPG signing key ID (gpg --list-secret-keys --keyid-format LONG)" -}}
+
+# Managed by chezmoi via .chezmoi.toml.tmpl. Re-run `chezmoi init` to regenerate.
+
+[data]
+    system_type = {{ $systemType | quote }}
+    email = {{ $email | quote }}
+    signing_key = {{ $signingKey | quote }}
