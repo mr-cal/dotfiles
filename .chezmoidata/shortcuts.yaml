@@ -13,7 +13,7 @@ shortcuts:
   # Directories, relative to $HOME.
   directories:
     - name: cdsc
-      path: dev/craft/snapcraft
+      path: dev/craft/snapcraft/snapcraft-main
     - name: cdsca
       path: dev/craft/snapcraft/snapcraft-a
     - name: cdscb
@@ -95,8 +95,8 @@ shortcuts:
       command: lxc --project rockcraft
     - name: lxckc
       command: lxc --project kerncraft
-    - name: lxcsoc
-      command: lxc --project sourcecraft
+    - name: lxcbc
+      command: lxc --project bincraft
 
     - name: l
       command: ls -1hF
