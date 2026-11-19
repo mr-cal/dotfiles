@@ -1,4 +1,4 @@
-theme = "gruvbox-material-dark-medium"
+theme = "current"
 
 [editor]
 trim-trailing-whitespace = true

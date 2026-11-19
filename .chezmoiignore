@@ -8,6 +8,8 @@ README.md
 .config/chezmoi/chezmoi.toml
 .config/fish/vars.fish
 .config/local-llm/**
+.config/kitty/current-theme.conf
+.config/helix/themes/current.toml
 .gnupg/**
 .ssh/id_*
 .ssh/known_hosts
