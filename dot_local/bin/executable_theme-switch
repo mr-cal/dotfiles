@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Switch kitty, helix and GNOME between the morning and evening themes.
+set -euo pipefail
+
+case "${1:-}" in
+morning) variant=soft; scheme=prefer-light; gtk=Adwaita ;;
+evening) variant=medium; scheme=prefer-dark; gtk=Adwaita-dark ;;
+*)
+    echo "Usage: theme-switch morning|evening" >&2
+    exit 1
+    ;;
+esac
+
+ln -sf "$HOME/.config/kitty/gruvbox-material-dark-$variant.conf" "$HOME/.config/kitty/current-theme.conf"
+ln -sf "gruvbox-material-dark-$variant.toml" "$HOME/.config/helix/themes/current.toml"
+
+# SIGUSR1 makes kitty and helix reload their config; ignore if none are running.
+pkill -USR1 -x kitty || true
+pkill -USR1 -x hx || true
+
+gsettings set org.gnome.desktop.interface color-scheme "$scheme"
+gsettings set org.gnome.desktop.interface gtk-theme "$gtk"

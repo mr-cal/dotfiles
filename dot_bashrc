@@ -111,16 +111,8 @@ sb() {
 }
 
 # Evening: dark medium terminal + dark GNOME. Morning: dark soft terminal + light GNOME.
-alias good-evening='ln -sf ~/.config/kitty/gruvbox-material-dark-medium.conf ~/.config/kitty/current-theme.conf && \
-    ln -sf gruvbox-material-dark-medium.toml ~/.config/helix/themes/current.toml && \
-    pkill -USR1 -x kitty && \
-    gsettings set org.gnome.desktop.interface color-scheme prefer-dark && \
-    gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"'
-alias good-morning='ln -sf ~/.config/kitty/gruvbox-material-dark-soft.conf ~/.config/kitty/current-theme.conf && \
-    ln -sf gruvbox-material-dark-soft.toml ~/.config/helix/themes/current.toml && \
-    pkill -USR1 -x kitty && \
-    gsettings set org.gnome.desktop.interface color-scheme prefer-light && \
-    gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"'
+alias good-evening='theme-switch evening'
+alias good-morning='theme-switch morning'
 
 ################
 # integrations #
