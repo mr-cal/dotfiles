@@ -1,3 +1,3 @@
-function themes --description 'Pick a theme (morning, day, evening)'
+function themes --description 'Pick a theme (light, medium, dark)'
     theme-pick
 end

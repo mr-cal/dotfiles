@@ -3,14 +3,14 @@
 # everything (including GNOME), Esc/q restores the previous theme.
 set -euo pipefail
 
-themes=(morning day evening)
-descriptions=("dark soft, light GNOME" "light stone, light GNOME" "dark medium, dark GNOME")
+themes=(light medium dark)
+descriptions=("light stone, light GNOME" "dark soft, light GNOME" "dark medium, dark GNOME")
 count=${#themes[@]}
 
 original=$(readlink "$HOME/.config/kitty/current-theme.conf" 2>/dev/null || true)
 case "$original" in
-*dark-soft*) selected=0 ;;
-*light-stone*) selected=1 ;;
+*light-stone*) selected=0 ;;
+*dark-soft*) selected=1 ;;
 *) selected=2 ;;
 esac
 current=${themes[$selected]}

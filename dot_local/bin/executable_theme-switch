@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Switch kitty, helix and GNOME between the morning, day and evening themes.
+# Switch kitty, helix and GNOME between the light, medium and dark themes.
 # With --preview, only kitty and helix change (used by theme-pick).
 set -euo pipefail
 
@@ -10,11 +10,11 @@ if [ "${1:-}" = "--preview" ]; then
 fi
 
 case "${1:-}" in
-morning) tone=dark-soft; scheme=prefer-light; gtk=Adwaita ;;
-day) tone=light-stone; scheme=prefer-light; gtk=Adwaita ;;
-evening) tone=dark-medium; scheme=prefer-dark; gtk=Adwaita-dark ;;
+medium) tone=dark-soft; scheme=prefer-light; gtk=Adwaita ;;
+light) tone=light-stone; scheme=prefer-light; gtk=Adwaita ;;
+dark) tone=dark-medium; scheme=prefer-dark; gtk=Adwaita-dark ;;
 *)
-    echo "Usage: theme-switch [--preview] morning|day|evening" >&2
+    echo "Usage: theme-switch [--preview] light|medium|dark" >&2
     exit 1
     ;;
 esac
