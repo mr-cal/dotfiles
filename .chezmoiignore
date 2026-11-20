@@ -10,6 +10,7 @@ README.md
 .config/local-llm/**
 .config/kitty/current-theme.conf
 .config/helix/themes/current.toml
+.config/starship/current.toml
 .gnupg/**
 .ssh/id_*
 .ssh/known_hosts

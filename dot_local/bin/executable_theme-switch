@@ -21,6 +21,8 @@ esac
 
 ln -sf "$HOME/.config/kitty/gruvbox-material-$tone.conf" "$HOME/.config/kitty/current-theme.conf"
 ln -sf "gruvbox-material-$tone.toml" "$HOME/.config/helix/themes/current.toml"
+# Starship rereads its config on every prompt, so this takes effect immediately.
+ln -sf "${tone%%-*}.toml" "$HOME/.config/starship/current.toml"
 
 # SIGUSR1 makes kitty and helix reload their config; ignore if none are running.
 pkill -USR1 -x kitty || true

@@ -31,7 +31,7 @@ $line_break$character"""
 # - git metrics
 # - status (exit code of previous command)
 
-palette = 'gruvbox_dark'
+palette = '{{ .palette }}'
 
 [fill]
 symbol = ' '
@@ -47,6 +47,20 @@ color_orange = '#d65d0e'
 color_purple = '#b16286'
 color_red = '#cc241d'
 color_yellow = '#d79921'
+color_link = '#83a598'
+
+[palettes.gruvbox_light]
+color_fg0 = '#654735'
+color_bg1 = '#cfcabb'
+color_bg3 = '#bdb8a8'
+color_blue = '#45707a'
+color_aqua = '#4c7a5d'
+color_green = '#6c782e'
+color_orange = '#c35e0a'
+color_purple = '#945e80'
+color_red = '#c14a4a'
+color_yellow = '#b47109'
+color_link = '#45707a'
 
 [os]
 disabled = false
@@ -156,11 +170,11 @@ format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_bg1)]($style)'
 [docker_context]
 symbol = ""
 style = "bg:color_bg1"
-format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg1)]($style)'
+format = '[[ $symbol( $context) ](fg:color_link bg:color_bg1)]($style)'
 
 [conda]
 style = "bg:color_bg1"
-format = '[[ $symbol( $environment) ](fg:#83a598 bg:color_bg1)]($style)'
+format = '[[ $symbol( $environment) ](fg:color_link bg:color_bg1)]($style)'
 
 [pixi]
 style = "bg:color_bg1"

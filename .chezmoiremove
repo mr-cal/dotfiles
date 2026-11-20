@@ -7,6 +7,9 @@
 # Replaced by conf.d/shortcuts.fish and the per-function files in functions/.
 .config/fish/conf.d/functions.fish
 
+# Replaced by the dark/light variants in starship/.
+.config/starship.toml
+
 # Dead code: starship defines fish_prompt at shell startup, so this never ran.
 .config/fish/functions/fish_prompt.fish
 

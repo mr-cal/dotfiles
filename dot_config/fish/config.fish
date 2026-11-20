@@ -53,5 +53,8 @@ if command -q direnv
 end
 
 if command -q starship
+    # theme-switch points current.toml at the dark or light variant.
+    test -e ~/.config/starship/current.toml; or ln -sf dark.toml ~/.config/starship/current.toml
+    set -gx STARSHIP_CONFIG ~/.config/starship/current.toml
     starship init fish | source
 end
