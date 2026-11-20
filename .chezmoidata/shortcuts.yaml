@@ -19,32 +19,20 @@ shortcuts:
     - name: cdscb
       path: dev/craft/snapcraft/snapcraft-b
     - name: cdsce
-      path: dev/snaps/snapcraft-examples
+      path: dev/artifacts/snaps/snapcraft-examples
 
     - name: cdcc
       path: dev/craft/charmcraft
     - name: cdcce
-      path: dev/charms/charmcraft-examples
+      path: dev/artifacts/charms/charmcraft-examples
 
     - name: cdrc
       path: dev/craft/rockcraft
     - name: cdrce
-      path: dev/rocks/rockcraft-examples
-
-    - name: cdsoc
-      path: dev/craft/sourcecraft
-    - name: cdsoce
-      path: dev/sources/sourcecraft-examples
-
-    - name: cdkc
-      path: dev/craft/kerncraft
-    - name: cdkce
-      path: dev/craft/kerncraft-examples
+      path: dev/artifacts/rocks/rockcraft-examples
 
     - name: cdic
       path: dev/craft/imagecraft
-    - name: cdice
-      path: dev/craft/imagecraft-examples
 
     - name: cdcpa
       path: dev/craft/craft-parts
@@ -70,9 +58,9 @@ shortcuts:
       path: dev/craft/craft-store
 
     - name: cdbc
-      path: dev/craft/bincraft
+      path: dev/canonical/bincraft
     - name: cdbld
-      path: dev/craft/bld
+      path: dev/canonical/bld
     - name: cdfs
       path: dev/craft/fetch-service
     - name: cdsb
@@ -80,7 +68,7 @@ shortcuts:
     - name: cdsf
       path: dev/craft/starflow
     - name: cdss
-      path: dev/craft/starshow
+      path: dev/canonical/starshow
 
     - name: cddot
       path: .local/share/chezmoi
@@ -93,8 +81,6 @@ shortcuts:
       command: lxc --project charmcraft
     - name: lxcrc
       command: lxc --project rockcraft
-    - name: lxckc
-      command: lxc --project kerncraft
     - name: lxcbc
       command: lxc --project bincraft
 
