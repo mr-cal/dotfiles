@@ -110,9 +110,7 @@ sb() {
     sudo ddcutil setvcp 10 "$1" --display 1 && sudo ddcutil setvcp 10 "$1" --display 2
 }
 
-# Evening: dark medium terminal + dark GNOME. Morning: dark soft terminal + light GNOME.
-alias good-evening='theme-switch evening'
-alias good-morning='theme-switch morning'
+alias themes='theme-pick'
 
 ################
 # integrations #

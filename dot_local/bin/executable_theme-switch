@@ -1,22 +1,32 @@
 #!/usr/bin/env bash
-# Switch kitty, helix and GNOME between the morning and evening themes.
+# Switch kitty, helix and GNOME between the morning, day and evening themes.
+# With --preview, only kitty and helix change (used by theme-pick).
 set -euo pipefail
 
+preview=false
+if [ "${1:-}" = "--preview" ]; then
+    preview=true
+    shift
+fi
+
 case "${1:-}" in
-morning) variant=soft; scheme=prefer-light; gtk=Adwaita ;;
-evening) variant=medium; scheme=prefer-dark; gtk=Adwaita-dark ;;
+morning) tone=dark-soft; scheme=prefer-light; gtk=Adwaita ;;
+day) tone=light-stone; scheme=prefer-light; gtk=Adwaita ;;
+evening) tone=dark-medium; scheme=prefer-dark; gtk=Adwaita-dark ;;
 *)
-    echo "Usage: theme-switch morning|evening" >&2
+    echo "Usage: theme-switch [--preview] morning|day|evening" >&2
     exit 1
     ;;
 esac
 
-ln -sf "$HOME/.config/kitty/gruvbox-material-dark-$variant.conf" "$HOME/.config/kitty/current-theme.conf"
-ln -sf "gruvbox-material-dark-$variant.toml" "$HOME/.config/helix/themes/current.toml"
+ln -sf "$HOME/.config/kitty/gruvbox-material-$tone.conf" "$HOME/.config/kitty/current-theme.conf"
+ln -sf "gruvbox-material-$tone.toml" "$HOME/.config/helix/themes/current.toml"
 
 # SIGUSR1 makes kitty and helix reload their config; ignore if none are running.
 pkill -USR1 -x kitty || true
 pkill -USR1 -x hx || true
 
-gsettings set org.gnome.desktop.interface color-scheme "$scheme"
-gsettings set org.gnome.desktop.interface gtk-theme "$gtk"
+if ! $preview; then
+    gsettings set org.gnome.desktop.interface color-scheme "$scheme"
+    gsettings set org.gnome.desktop.interface gtk-theme "$gtk"
+fi

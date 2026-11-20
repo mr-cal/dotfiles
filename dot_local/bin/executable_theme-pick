@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Pick a theme with the arrow keys. The terminal previews live; Enter applies
+# everything (including GNOME), Esc/q restores the previous theme.
+set -euo pipefail
+
+themes=(morning day evening)
+descriptions=("dark soft, light GNOME" "light stone, light GNOME" "dark medium, dark GNOME")
+count=${#themes[@]}
+
+original=$(readlink "$HOME/.config/kitty/current-theme.conf" 2>/dev/null || true)
+case "$original" in
+*dark-soft*) selected=0 ;;
+*light-stone*) selected=1 ;;
+*) selected=2 ;;
+esac
+current=${themes[$selected]}
+
+applied=false
+cleanup() {
+    tput cnorm
+    if ! $applied; then
+        theme-switch --preview "$current" >/dev/null 2>&1 || true
+    fi
+}
+trap cleanup EXIT
+
+draw() {
+    for i in "${!themes[@]}"; do
+        if [ "$i" -eq "$selected" ]; then
+            printf '\033[2K\033[1m▶ %-8s\033[0m %s\n' "${themes[$i]}" "${descriptions[$i]}"
+        else
+            printf '\033[2K  %-8s \033[2m%s\033[0m\n' "${themes[$i]}" "${descriptions[$i]}"
+        fi
+    done
+    printf '\033[2K\033[2m↑/↓ preview · enter apply · esc cancel\033[0m\n'
+}
+
+tput civis
+draw
+while true; do
+    IFS= read -rsn1 key
+    if [ "$key" = $'\033' ]; then
+        # A bare Esc has no follow-up bytes; arrows send "[A"/"[B".
+        IFS= read -rsn2 -t 0.05 rest || true
+        key="$key$rest"
+    fi
+    case "$key" in
+    $'\033[A' | k) selected=$(((selected + count - 1) % count)) ;;
+    $'\033[B' | j) selected=$(((selected + 1) % count)) ;;
+    "") applied=true; theme-switch "${themes[$selected]}"; break ;;
+    $'\033' | q) break ;;
+    *) continue ;;
+    esac
+    printf '\033[%dA' $((count + 1))
+    draw
+    theme-switch --preview "${themes[$selected]}" >/dev/null 2>&1 || true
+done
