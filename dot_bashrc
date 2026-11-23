@@ -101,15 +101,6 @@ dotpush() {
         git -C "$src" push --set-upstream origin "$branch"
 }
 
-# Set the brightness of both external monitors.
-sb() {
-    if [ "$#" -ne 1 ]; then
-        echo "Usage: sb <brightness>" >&2
-        return 1
-    fi
-    sudo ddcutil setvcp 10 "$1" --display 1 && sudo ddcutil setvcp 10 "$1" --display 2
-}
-
 alias themes='theme-pick'
 
 ################

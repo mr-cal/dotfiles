@@ -1,22 +1,36 @@
 #!/usr/bin/env bash
-# Pick a theme with the arrow keys. The terminal previews live; Enter applies
-# everything (including GNOME), Esc/q restores the previous theme.
+# Pick a theme and, where ddcutil exists, the monitor brightness.
+# Up/down chooses the row; left/right changes its value. The terminal previews
+# themes live; Enter applies everything (including GNOME and brightness),
+# Esc/q restores the previous theme.
 set -euo pipefail
 
 themes=(light medium dark)
 descriptions=("light stone, light GNOME" "dark soft, light GNOME" "dark medium, dark GNOME")
 count=${#themes[@]}
 
+# Brightness is only offered where it can work. -1 means "leave unchanged".
+has_brightness=false
+if command -v ddcutil >/dev/null 2>&1; then
+    has_brightness=true
+fi
+brightness=-1
+default_brightness=3
+rows=1
+$has_brightness && rows=2
+
 original=$(readlink "$HOME/.config/kitty/current-theme.conf" 2>/dev/null || true)
 case "$original" in
-*light-stone*) selected=0 ;;
-*dark-soft*) selected=1 ;;
-*) selected=2 ;;
+*light-stone*) theme=0 ;;
+*dark-soft*) theme=1 ;;
+*) theme=2 ;;
 esac
-current=${themes[$selected]}
+current=${themes[$theme]}
+row=0
 
 applied=false
 cleanup() {
+    printf '\033[?1049l'
     tput cnorm
     if ! $applied; then
         theme-switch --preview "$current" >/dev/null 2>&1 || true
@@ -25,16 +39,69 @@ cleanup() {
 trap cleanup EXIT
 
 draw() {
-    for i in "${!themes[@]}"; do
-        if [ "$i" -eq "$selected" ]; then
-            printf '\033[2K\033[1m▶ %-8s\033[0m %s\n' "${themes[$i]}" "${descriptions[$i]}"
+    printf '\033[H\033[J'
+    draw_row 0 theme "◀ ${themes[$theme]} ▶  ${descriptions[$theme]}"
+    if $has_brightness; then
+        if [ "$brightness" -lt 0 ]; then
+            value="unchanged"
         else
-            printf '\033[2K  %-8s \033[2m%s\033[0m\n' "${themes[$i]}" "${descriptions[$i]}"
+            value="◀ ${brightness} ▶"
         fi
-    done
-    printf '\033[2K\033[2m↑/↓ preview · enter apply · esc cancel\033[0m\n'
+        draw_row 1 brightness "$value"
+    fi
+    if $has_brightness; then
+        printf '\n\033[2m↑/↓ row · ←/→ change · enter apply · esc cancel\033[0m\n'
+    else
+        printf '\n\033[2m←/→ change · enter apply · esc cancel\033[0m\n'
+    fi
 }
 
+draw_row() {
+    if [ "$1" -eq "$row" ]; then
+        printf '\033[1m▶ %-11s %s\033[0m\n' "$2" "$3"
+    else
+        printf '  %-11s \033[2m%s\033[0m\n' "$2" "$3"
+    fi
+}
+
+change() {
+    if [ "$row" -eq 0 ]; then
+        theme=$(((theme + $1 + count) % count))
+        theme-switch --preview "${themes[$theme]}" >/dev/null 2>&1 || true
+    elif [ "$brightness" -lt 0 ]; then
+        brightness=$default_brightness
+    else
+        brightness=$((brightness + $1))
+        if [ "$brightness" -lt 0 ]; then brightness=0; fi
+        if [ "$brightness" -gt 100 ]; then brightness=100; fi
+    fi
+}
+
+apply_brightness() {
+    echo "Setting brightness to ${brightness}%..."
+    local sudo_cmd=()
+    # Probe without root first; only fall back to sudo (which may prompt for
+    # authentication) when ddcutil can't talk to the monitor unprivileged.
+    if ! ddcutil setvcp 10 "$brightness" --display 1 >/dev/null 2>&1; then
+        if command -v sudo >/dev/null 2>&1; then
+            echo "Needs root; sudo may ask you to authenticate..."
+            sudo_cmd=(sudo)
+            "${sudo_cmd[@]}" ddcutil setvcp 10 "$brightness" --display 1 || {
+                echo "theme-pick: failed to set brightness" >&2
+                return 0
+            }
+        else
+            echo "theme-pick: failed to set brightness" >&2
+            return 0
+        fi
+    fi
+    "${sudo_cmd[@]}" ddcutil setvcp 10 "$brightness" --display 2 ||
+        echo "theme-pick: failed to set brightness on display 2" >&2
+}
+
+# The alternate screen lets draw() repaint from the top, so scrolling or
+# wrapped lines cannot corrupt the layout.
+printf '\033[?1049h'
 tput civis
 draw
 while true; do
@@ -45,13 +112,20 @@ while true; do
         key="$key$rest"
     fi
     case "$key" in
-    $'\033[A' | k) selected=$(((selected + count - 1) % count)) ;;
-    $'\033[B' | j) selected=$(((selected + 1) % count)) ;;
-    "") applied=true; theme-switch "${themes[$selected]}"; break ;;
+    $'\033[A' | k) row=$(((row + rows - 1) % rows)) ;;
+    $'\033[B' | j) row=$(((row + 1) % rows)) ;;
+    $'\033[C' | l) change 1 ;;
+    $'\033[D' | h) change -1 ;;
+    "")
+        applied=true
+        printf '\033[?1049l'
+        tput cnorm
+        theme-switch "${themes[$theme]}"
+        [ "$brightness" -ge 0 ] && apply_brightness
+        break
+        ;;
     $'\033' | q) break ;;
     *) continue ;;
     esac
-    printf '\033[%dA' $((count + 1))
     draw
-    theme-switch --preview "${themes[$selected]}" >/dev/null 2>&1 || true
 done
